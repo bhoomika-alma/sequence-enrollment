@@ -71,18 +71,23 @@ function App() {
 
   const run = async () => {
     setRunning(true);
+    const payload = {
+      rep_hs_id: form.repId,
+      sequence_id: form.sequenceId,
+      segment_id: form.segmentId,
+      sequence_name: form.sequenceName,
+      season_context: form.seasonContext,
+      custom_rules: useCustom ? { enabled: true, target_module: module, job_titles: titles } : { enabled: false }
+    };
     try {
       await fetch("https://almabase.app.n8n.cloud/webhook/almabase-enroll", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rep_hs_id: form.repId,
-          sequence_id: form.sequenceId,
-          segment_id: form.segmentId,
-          sequence_name: form.sequenceName,
-          season_context: form.seasonContext,
-          custom_rules: useCustom ? { enabled: true, target_module: module, job_titles: titles } : { enabled: false }
-        })
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        mode: "no-cors",
+        body: JSON.stringify(payload)
       });
     } catch (e) { console.error("Webhook error:", e); }
     setRunning(false); setDone(true);
