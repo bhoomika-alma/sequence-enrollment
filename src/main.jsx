@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createRoot } from "react-dom/client";
 
 const WEBHOOK_URL = "https://almabase.app.n8n.cloud/webhook/6f695c6c-4e37-4f04-8da9-508d5b94583c";
 
@@ -188,10 +189,9 @@ export default function App() {
     setRunning(true);
     setStatus(null);
     try {
-      await fetch(WEBHOOK_URL, {
+      const res = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        mode: "no-cors",
         body: JSON.stringify({
           rep_hs_id: form.repId,
           segment_id: form.segmentId,
@@ -200,6 +200,11 @@ export default function App() {
           job_titles: form.jobTitles,
         }),
       });
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMsg(`Workflow responded with ${res.status}. Check that the n8n workflow is active and try again.`);
+        return;
+      }
       setStatus("success");
       setForm(EMPTY);
     } catch (err) {
@@ -305,3 +310,5 @@ export default function App() {
     </div>
   );
 }
+
+createRoot(document.getElementById("root")).render(<App />);
