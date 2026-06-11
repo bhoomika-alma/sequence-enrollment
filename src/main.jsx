@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const WEBHOOK_URL = "https://almabase.app.n8n.cloud/webhook/almabase-enroll";
+const WEBHOOK_URL = "https://almabase.app.n8n.cloud/webhook/6f695c6c-4e37-4f04-8da9-508d5b94583c";
 
 const S = {
   page: {
