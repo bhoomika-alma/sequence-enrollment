@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 
-const WEBHOOK_URL = "https://almabase.app.n8n.cloud/webhook/almabase-enroll";
+const WEBHOOK_URL = "https://almabase.app.n8n.cloud/webhook/almabase-enroll-v2";
 
 const FONT = "'Playfair Display', Georgia, serif";
 
