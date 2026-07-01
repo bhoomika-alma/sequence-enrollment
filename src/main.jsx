@@ -54,6 +54,12 @@ const MODULE_TITLES = {
 const STEPS = ["Sequence", "POC Rules", "Review"];
 
 const SEQUENCE_FIELDS = [
+  {
+    key: "email",
+    label: "Your Email",
+    placeholder: "e.g. you@almabase.com",
+    hint: "Must be an @almabase.com address.",
+  },
   { key: "repId", label: "Rep HubSpot User ID", placeholder: "e.g. 12345678" },
   { key: "sequenceId", label: "Sequence ID", placeholder: "e.g. seq_abc123" },
   { key: "segmentId", label: "Segment ID", placeholder: "e.g. ILS_123456" },
@@ -82,6 +88,7 @@ const WHAT_HAPPENS = [
 ];
 
 const EMPTY_FORM = {
+  email: "",
   repId: "",
   sequenceId: "",
   segmentId: "",
@@ -118,6 +125,11 @@ export default function App() {
     ["repId", "sequenceId", "segmentId", "sequenceName"].forEach((key) => {
       if (!form[key].trim()) e[key] = "Required";
     });
+    if (!form.email.trim()) {
+      e.email = "Required";
+    } else if (!/^[^\s@]+@almabase\.com$/i.test(form.email.trim())) {
+      e.email = "Must be an @almabase.com email";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -177,6 +189,7 @@ export default function App() {
   const runEnrollment = async () => {
     setRunning(true);
     const payload = {
+      email: form.email.trim(),
       rep_hs_id: form.repId,
       sequence_id: form.sequenceId,
       segment_id: form.segmentId,
@@ -817,6 +830,7 @@ export default function App() {
               </p>
               <div style={{ marginBottom: 24 }}>
                 {[
+                  ["Email", form.email],
                   ["Rep ID", form.repId],
                   ["Sequence ID", form.sequenceId],
                   ["Segment ID", form.segmentId],
