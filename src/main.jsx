@@ -58,7 +58,7 @@ const SEQUENCE_FIELDS = [
     key: "email",
     label: "Your Email",
     placeholder: "e.g. you@almabase.com",
-    hint: "Must be an @almabase.com address.",
+    hint: "Enter the email you use to sign in to Slack — must be an @almabase.com or @getalmabase.com address.",
   },
   { key: "repId", label: "Rep HubSpot User ID", placeholder: "e.g. 12345678" },
   { key: "sequenceId", label: "Sequence ID", placeholder: "e.g. seq_abc123" },
@@ -127,8 +127,8 @@ export default function App() {
     });
     if (!form.email.trim()) {
       e.email = "Required";
-    } else if (!/^[^\s@]+@almabase\.com$/i.test(form.email.trim())) {
-      e.email = "Must be an @almabase.com email";
+    } else if (!/^[^\s@]+@(almabase|getalmabase)\.com$/i.test(form.email.trim())) {
+      e.email = "Use your Slack email (@almabase.com or @getalmabase.com)";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
