@@ -58,7 +58,7 @@ const SEQUENCE_FIELDS = [
     key: "email",
     label: "Your Email",
     placeholder: "e.g. you@almabase.com",
-    hint: "Enter the email you use to sign in to Slack — must be an @almabase.com or @getalmabase.com address.",
+    hint: "Enter the email you use to sign in to Slack.",
   },
   { key: "repId", label: "Rep HubSpot User ID", placeholder: "e.g. 12345678" },
   { key: "sequenceId", label: "Sequence ID", placeholder: "e.g. seq_abc123" },
