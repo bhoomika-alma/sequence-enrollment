@@ -2,6 +2,9 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 
 const WEBHOOK_URL = "https://almabase.app.n8n.cloud/webhook/almabase-enroll-v2";
+// Lightweight preflight endpoint: verifies the Rep ID + Segment ID exist in
+// HubSpot before we let the user leave step 0. Returns { ok, errors }.
+const VALIDATE_URL = "https://almabase.app.n8n.cloud/webhook/almabase-validate";
 
 const FONT = "'Playfair Display', Georgia, serif";
 
@@ -108,6 +111,7 @@ export default function App() {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState("");
   const [running, setRunning] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [done, setDone] = useState(false);
   const [errors, setErrors] = useState({});
   const [focused, setFocused] = useState(null);
@@ -141,6 +145,59 @@ export default function App() {
     }
     setErrors({});
     return true;
+  };
+
+  // Step 0 "Continue": first run the local checks (presence + email), then ask
+  // n8n to verify the Rep ID and Segment ID actually exist in HubSpot. We only
+  // advance once both pass, so a bad ID never reaches the enrollment workflow.
+  const goNextFromSequence = async () => {
+    if (!validateSequence()) return;
+    setVerifying(true);
+    try {
+      const res = await fetch(VALIDATE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rep_hs_id: form.repId.trim(),
+          segment_id: form.segmentId.trim(),
+        }),
+      });
+      // A non-2xx here is a service/config problem (webhook inactive, n8n
+      // error) — not the user's input, so don't blame a field for it.
+      if (!res.ok) {
+        setErrors({
+          repId: `Verification service is unavailable (${res.status}). Try again in a moment.`,
+        });
+        setVerifying(false);
+        return;
+      }
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+      if (!data || !data.ok) {
+        setErrors(
+          data && data.errors && Object.keys(data.errors).length
+            ? data.errors
+            : { repId: "Could not verify these IDs in HubSpot." },
+        );
+        setVerifying(false);
+        return;
+      }
+    } catch (err) {
+      console.error("Preflight error:", err);
+      setErrors({
+        repId:
+          "Couldn't reach HubSpot to verify the IDs. Check your connection and try again.",
+      });
+      setVerifying(false);
+      return;
+    }
+    setVerifying(false);
+    setErrors({});
+    setStep((s) => s + 1);
   };
 
   const searchSchool = async () => {
@@ -1049,24 +1106,28 @@ export default function App() {
               {step < 2 ? (
                 <button
                   onClick={() => {
-                    if (step === 0 && !validateSequence()) return;
+                    if (step === 0) {
+                      goNextFromSequence();
+                      return;
+                    }
                     if (step === 1 && !validateRules()) return;
                     setErrors({});
                     setStep((s) => s + 1);
                   }}
+                  disabled={verifying}
                   style={{
                     padding: "11px 26px",
-                    background: "#0957b8",
+                    background: verifying ? "#aac4e8" : "#0957b8",
                     color: "white",
                     border: "none",
                     borderRadius: 8,
                     fontSize: 14,
                     fontFamily: FONT,
                     fontWeight: 600,
-                    cursor: "pointer",
+                    cursor: verifying ? "default" : "pointer",
                   }}
                 >
-                  Continue
+                  {verifying ? "Verifying..." : "Continue"}
                 </button>
               ) : (
                 <button
