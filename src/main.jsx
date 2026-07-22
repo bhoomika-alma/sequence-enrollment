@@ -160,6 +160,7 @@ export default function App() {
         body: JSON.stringify({
           rep_hs_id: form.repId.trim(),
           segment_id: form.segmentId.trim(),
+          sequence_id: form.sequenceId.trim(),
         }),
       });
       // A non-2xx here is a service/config problem (webhook inactive, n8n
